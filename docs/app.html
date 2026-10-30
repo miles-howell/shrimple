@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shrimple in your browser</title>
+<meta name="description" content="Shrimple without the EXE: a posture-checking shrimp that nudges you with notifications and floats on top of your other windows.">
+<link rel="icon" id="favicon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #3A1716;
+    --ink-soft: #7A5A55;
+    --outline: #5C201E;
+    --shrimp: #FF8E6C;
+    --sea-top: #E9F6FC;
+    --sea-bottom: #B9E0F5;
+    --tile: #F4FAFD;
+    --card: rgba(255, 255, 255, 0.6);
+    --card-line: rgba(92, 32, 30, 0.12);
+    --pixel: "Silkscreen", ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #FBE9E4;
+      --ink-soft: #C7A9A2;
+      --outline: #FFB49C;
+      --sea-top: #0B2233;
+      --sea-bottom: #12405C;
+      --tile: #1A3A50;
+      --card: rgba(8, 24, 36, 0.55);
+      --card-line: rgba(255, 180, 156, 0.16);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--sea-bottom); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 17px/1.6 var(--body);
+    background: linear-gradient(var(--sea-top), var(--sea-bottom)) fixed;
+    min-height: 100vh;
+  }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px 64px; }
+  a { color: inherit; }
+  h1 { font: 700 28px/1.2 var(--pixel); margin: 12px 0 8px; }
+  .back { font: 400 14px var(--pixel); text-decoration: none; }
+  .lede { color: var(--ink-soft); margin: 0 0 28px; }
+
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .tank {
+    border: 0;
+    padding: 0;
+    background: var(--tile);
+    width: min(288px, 80vw);
+    aspect-ratio: 1;
+    border-radius: 12px;
+    box-shadow: 0 0 0 4px var(--outline), 8px 10px 0 4px rgba(92, 32, 30, 0.22);
+    cursor: pointer;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tank:focus-visible { outline: 4px dashed var(--shrimp); outline-offset: 8px; }
+  .tank canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+  .status { font: 400 14px var(--pixel); margin: 10px 0 0; text-align: center; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    padding: 20px;
+    display: grid;
+    gap: 18px;
+  }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; justify-content: space-between; }
+  .row small { flex-basis: 100%; color: var(--ink-soft); line-height: 1.4; }
+  label { font-weight: 600; }
+  select {
+    font: inherit;
+    color: var(--ink);
+    background: var(--tile);
+    border: 2px solid var(--outline);
+    border-radius: 6px;
+    padding: 6px 8px;
+  }
+  .btn {
+    font: 700 14px/1 var(--pixel);
+    padding: 12px 16px;
+    border: 3px solid var(--outline);
+    box-shadow: 3px 3px 0 var(--outline);
+    background: var(--shrimp);
+    color: #3A1716;
+    cursor: pointer;
+  }
+  .btn:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--outline); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.on { background: #8FD9A0; }
+  .fine { color: var(--ink-soft); font-size: 15px; margin-top: 24px; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; shrimple</a>
+  <h1>Shrimple, no EXE</h1>
+  <p class="lede">The same shrimp, living in this browser tab instead of your system tray. Pin it to float over your other windows, or let it send notifications when it's time to sit up.</p>
+
+  <div class="stage">
+    <button class="tank" id="tank" type="button" aria-label="Shrimple, the posture shrimp. Click when you've sat up straight.">
+      <canvas id="shrimp" width="16" height="16"></canvas>
+    </button>
+    <p class="status" id="status" aria-live="off"></p>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <label for="interval">Remind me every</label>
+      <select id="interval"></select>
+    </div>
+    <div class="row">
+      <label for="paused">Pause reminders</label>
+      <input type="checkbox" id="paused">
+    </div>
+    <div class="row">
+      <span><strong>Notifications</strong></span>
+      <button class="btn" id="notify" type="button">Enable</button>
+      <small id="notify-note">A quiet notification when a check is due, and again as the shrimp gets angrier. No sounds. Only sent while this tab is out of sight.</small>
+    </div>
+    <div class="row">
+      <span><strong>Float on top</strong></span>
+      <button class="btn" id="pin" type="button">Pin the shrimp</button>
+      <small id="pin-note">Opens a small always-on-top window with the shrimp in it. Click it once you've sat up straight.</small>
+    </div>
+  </div>
+
+  <p class="fine">Keep this tab open (it can be in the background). Closing it stops the shrimp, and there's no tray icon, no "start with Windows" and no overlay over full-screen apps. For those, <a href="https://github.com/miles-howell/shrimple/releases/latest">grab the EXE</a>.</p>
+</main>
+
+<script src="sprite.js"></script>
+<script>
+// Mood logic as in src/shrimp.rs, with the tray version's real timings.
+const SUSPICIOUS_DELAY = 20 * 1000;
+const ANGER_DELAY = 60 * 1000;
+const ANGER_RAMP = 9 * 60 * 1000;
+const HAPPY_TIME = 3000;
+const MINUTE = 60 * 1000;
+const INTERVALS = [5, 10, 15, 20, 30, 45, 60, 90];
+
+const $ = id => document.getElementById(id);
+const canvas = $("shrimp");
+const tank = $("tank");
+const statusEl = $("status");
+const intervalEl = $("interval");
+const pausedEl = $("paused");
+const notifyBtn = $("notify");
+const notifyNote = $("notify-note");
+const pinBtn = $("pin");
+const pinNote = $("pin-note");
+const favicon = $("favicon");
+const faviconCanvas = document.createElement("canvas");
+faviconCanvas.width = faviconCanvas.height = SIZE;
+const iconCanvas = document.createElement("canvas");
+iconCanvas.width = iconCanvas.height = 64;
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- Settings ----------
+
+const stored = {};
+try { Object.assign(stored, JSON.parse(localStorage.getItem("shrimple-app")) || {}); } catch (e) {}
+let interval = (INTERVALS.includes(stored.minutes) ? stored.minutes : 30) * MINUTE;
+let paused = !!stored.paused;
+let notifyOn = !!stored.notify;
+
+function save() {
+  try {
+    localStorage.setItem("shrimple-app", JSON.stringify({ minutes: interval / MINUTE, paused, notify: notifyOn }));
+  } catch (e) {}
+}
+
+for (const m of INTERVALS) {
+  const o = document.createElement("option");
+  o.value = m;
+  o.textContent = m < 60 ? `${m} minutes` : m === 60 ? "1 hour" : "1½ hours";
+  intervalEl.append(o);
+}
+intervalEl.value = interval / MINUTE;
+pausedEl.checked = paused;
+
+let lastAck = Date.now() - HAPPY_TIME;
+const restart = () => { lastAck = Date.now() - HAPPY_TIME; stage = 0; };
+
+intervalEl.addEventListener("change", () => { interval = Number(intervalEl.value) * MINUTE; save(); restart(); });
+pausedEl.addEventListener("change", () => { paused = pausedEl.checked; save(); restart(); });
+
+// ---------- Mood ----------
+
+function look(now) {
+  const calm = { pose: "upright", anger: 0, overdue: -1, shake: 0, sparkle: false, flicker: false };
+  if (paused) return calm;
+  const elapsed = now - lastAck;
+  const overdue = elapsed - interval;
+  if (overdue < 0) return { ...calm, overdue, sparkle: elapsed < HAPPY_TIME };
+  const pose = overdue < SUSPICIOUS_DELAY ? "doubtful" : "suspicious";
+  const fuming = overdue - ANGER_DELAY;
+  const anger = fuming < 0 ? 0 : Math.min(MAX_ANGER, Math.floor((fuming / ANGER_RAMP) * MAX_ANGER) + 1);
+  const shake = anger === MAX_ANGER && Math.floor(overdue / 1000) % 2 === 1 ? 1 : 0;
+  const flicker = anger >= FLAME_ANGER && Math.floor(overdue / 500) % 2 === 1;
+  return { pose, anger, overdue, shake, sparkle: false, flicker };
+}
+
+function acknowledge() {
+  lastAck = Date.now();
+  stage = 0;
+}
+tank.addEventListener("click", acknowledge);
+
+function describe(l) {
+  if (paused) return "Paused";
+  if (l.overdue < 0) {
+    const mins = Math.ceil(-l.overdue / MINUTE);
+    return `Posture check in ${mins} ${mins === 1 ? "minute" : "minutes"}`;
+  }
+  if (l.anger >= MAX_ANGER) return "FURIOUS. Fix your posture and click me!";
+  if (l.anger >= FLAME_ANGER) return "Turning red. SIT UP STRAIGHT.";
+  if (l.anger >= 1) return "Getting impatient. Sit up straight!";
+  return "Posture check! Sit up, then click me.";
+}
+
+// ---------- Notifications ----------
+
+// 0 = nothing to say, 1 = check due, 2 = seaweed on fire, 3 = furious.
+let stage = 0;
+const stageOf = l => l.overdue < 0 ? 0 : l.anger >= MAX_ANGER ? 3 : l.anger >= FLAME_ANGER ? 2 : 1;
+
+const NOTE_TITLES = ["", "Posture check!", "The seaweed is on fire", "Shrimple is furious"];
+const NOTE_BODIES = [
+  "",
+  "Sit up straight, then click me.",
+  "SIT UP STRAIGHT, then click me.",
+  "I AM SO ANGRY. CLICK ME RIGHT NOW.",
+];
+
+function iconFor(l) {
+  paint(faviconCanvas, compose(l, { bubbles: false }), l.anger);
+  const ctx = iconCanvas.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  ctx.clearRect(0, 0, 64, 64);
+  ctx.drawImage(faviconCanvas, 0, 0, 64, 64);
+  return iconCanvas.toDataURL();
+}
+
+function maybeNotify(l) {
+  const next = stageOf(l);
+  if (next <= stage) return;
+  stage = next;
+  // The pinned shrimp is already in your face; the tab is when nobody can see it.
+  if (!notifyOn || pipWin || document.visibilityState === "visible") return;
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const n = new Notification(NOTE_TITLES[next], {
+    body: NOTE_BODIES[next],
+    icon: iconFor(l),
+    tag: "shrimple",
+    renotify: true,
+    silent: true,
+    requireInteraction: next >= 2,
+  });
+  n.onclick = () => { n.close(); window.focus(); acknowledge(); };
+}
+
+function syncNotifyUi() {
+  if (!("Notification" in window)) {
+    notifyBtn.disabled = true;
+    notifyBtn.textContent = "Unavailable";
+    notifyNote.textContent = "This browser doesn't support notifications.";
+  } else if (Notification.permission === "denied") {
+    notifyBtn.disabled = true;
+    notifyBtn.textContent = "Blocked";
+    notifyNote.textContent = "Notifications are blocked for this site. Allow them in your browser's site settings, then reload.";
+  } else {
+    const on = notifyOn && Notification.permission === "granted";
+    notifyBtn.textContent = on ? "On" : "Enable";
+    notifyBtn.classList.toggle("on", on);
+  }
+}
+notifyBtn.addEventListener("click", async () => {
+  if (notifyOn && Notification.permission === "granted") {
+    notifyOn = false;
+  } else {
+    // Only ask when the user clicks, never on page load.
+    const result = await Notification.requestPermission();
+    notifyOn = result === "granted";
+  }
+  save();
+  syncNotifyUi();
+});
+syncNotifyUi();
+
+// ---------- Floating window ----------
+
+let pipWin = null;
+let pipCanvas = null;
+
+if (!("documentPictureInPicture" in window)) {
+  pinBtn.disabled = true;
+  pinNote.textContent = "Floating windows need Chrome or Edge 116+. Notifications work everywhere.";
+}
+
+pinBtn.addEventListener("click", async () => {
+  if (pipWin) { pipWin.close(); return; }
+  try {
+    pipWin = await documentPictureInPicture.requestWindow({ width: 220, height: 220 });
+  } catch (e) {
+    pipWin = null;
+    pinNote.textContent = "Couldn't open the floating window. Try clicking the button again.";
+    return;
+  }
+  const win = pipWin;
+  const doc = win.document;
+  doc.title = "Shrimple";
+  const style = doc.createElement("style");
+  style.textContent = `
+    html, body { margin: 0; height: 100%; background: #B9E0F5; }
+    body { display: grid; place-items: center; }
+    button { border: 0; padding: 0; width: min(92vw, 92vh); aspect-ratio: 1; background: #F4FAFD;
+      border-radius: 12px; box-shadow: 0 0 0 3px #5C201E; cursor: pointer; overflow: hidden; }
+    canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }`;
+  const button = doc.createElement("button");
+  button.type = "button";
+  button.setAttribute("aria-label", "Shrimple. Click when you've sat up straight.");
+  pipCanvas = doc.createElement("canvas");
+  pipCanvas.width = pipCanvas.height = SIZE;
+  button.append(pipCanvas);
+  button.addEventListener("click", acknowledge);
+  doc.head.append(style);
+  doc.body.append(button);
+
+  win.addEventListener("pagehide", () => {
+    pipWin = null;
+    pipCanvas = null;
+    pinBtn.textContent = "Pin the shrimp";
+    pinBtn.classList.remove("on");
+  });
+  // The main page stops animating when it's hidden, but this window never is.
+  const loop = () => { if (pipWin === win) { render(); win.requestAnimationFrame(loop); } };
+  win.requestAnimationFrame(loop);
+  pinBtn.textContent = "Unpin";
+  pinBtn.classList.add("on");
+});
+
+// ---------- Drawing ----------
+
+let lastFavicon = "";
+let nextBlink = Date.now() + 2500;
+let blinkUntil = 0;
+
+function render() {
+  const now = Date.now();
+  const l = look(now);
+  if (now > nextBlink) {
+    blinkUntil = now + 140;
+    nextBlink = now + 2200 + Math.random() * 3000;
+  }
+  const g = compose(l, {
+    blink: now < blinkUntil && l.anger < FLAME_ANGER,
+    t: reduceMotion ? 0 : now,
+    bubbles: !reduceMotion,
+  });
+  paint(canvas, g, l.anger);
+  if (pipCanvas) paint(pipCanvas, g, l.anger);
+
+  statusEl.textContent = describe(l);
+  maybeNotify(l);
+
+  // Same title and tab-icon nagging as the home page.
+  document.title = l.anger >= MAX_ANGER ? "SIT UP STRAIGHT · Shrimple"
+    : l.anger >= FLAME_ANGER ? "🔥 Shrimple is on fire"
+    : l.overdue >= 0 ? "(?) Shrimple · posture check"
+    : "Shrimple in your browser";
+  const key = `${l.pose}${l.anger}${l.sparkle}${l.flicker}`;
+  if (key !== lastFavicon) {
+    lastFavicon = key;
+    paint(faviconCanvas, compose(l, { bubbles: false }), l.anger);
+    favicon.href = faviconCanvas.toDataURL();
+  }
+}
+
+function tick() {
+  render();
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+// Browsers throttle timers in background tabs, but a worker's clock keeps
+// ticking, and mood comes from the wall clock so it's right whenever it runs.
+try {
+  const url = URL.createObjectURL(new Blob(["setInterval(() => postMessage(0), 1000)"], { type: "text/javascript" }));
+  new Worker(url).onmessage = () => { if (document.hidden) render(); };
+} catch (e) {
+  setInterval(() => { if (document.hidden) render(); }, 1000);
+}
+</script>
+</body>
+</html>

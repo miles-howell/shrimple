@@ -60,6 +60,10 @@ wakes from sleep.
 [latest release](https://github.com/miles-howell/shrimple/releases/latest).
 Every `v*` tag is built and published automatically.
 
+**No EXE?** Use [Shrimple in your browser](https://shrimple.dev/app.html): the
+same shrimp as a web page, with optional notifications and an always-on-top
+floating window (Chrome/Edge). It needs the tab to stay open.
+
 **Build it yourself:** install [Rust](https://rustup.rs/), then on Windows:
 
 ```sh
