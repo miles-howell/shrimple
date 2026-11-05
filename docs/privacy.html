@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shrimple privacy policy</title>
+<meta name="description" content="Shrimple collects nothing about you. What the Windows app and the website store, and where.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #3A1716;
+    --ink-soft: #7A5A55;
+    --outline: #5C201E;
+    --sea-top: #E9F6FC;
+    --sea-bottom: #B9E0F5;
+    --card: rgba(255, 255, 255, 0.6);
+    --card-line: rgba(92, 32, 30, 0.12);
+    --pixel: "Silkscreen", ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #FBE9E4;
+      --ink-soft: #C7A9A2;
+      --outline: #FFB49C;
+      --sea-top: #0B2233;
+      --sea-bottom: #12405C;
+      --card: rgba(8, 24, 36, 0.55);
+      --card-line: rgba(255, 180, 156, 0.16);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--sea-bottom); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 17px/1.6 var(--body);
+    background: linear-gradient(var(--sea-top), var(--sea-bottom)) fixed;
+    min-height: 100vh;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+  a { color: inherit; }
+  .back { font: 400 14px var(--pixel); text-decoration: none; }
+  h1 { font: 700 28px/1.2 var(--pixel); margin: 12px 0 4px; }
+  .updated { color: var(--ink-soft); margin: 0 0 24px; font-size: 15px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    padding: 4px 24px 12px;
+  }
+  h2 { font: 700 18px/1.3 var(--pixel); color: var(--outline); margin: 24px 0 8px; }
+  p, ul { margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  code { font-family: var(--mono); font-size: 0.9em; overflow-wrap: anywhere; }
+  .tldr { font-weight: 600; }
+  footer { text-align: center; padding: 8px 16px 40px; font: 400 13px/1.6 var(--pixel); color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; shrimple</a>
+  <h1>Privacy policy</h1>
+  <p class="updated">Last updated: November 5, 2026</p>
+
+  <div class="card">
+    <p class="tldr" style="margin-top:20px">Short version: Shrimple doesn't collect anything about you. There are no accounts, no analytics, no ads, no tracking cookies, and nothing you do with the shrimp is sent to us. The few things it remembers stay on your own device.</p>
+
+    <p>This policy covers the Shrimple website at <a href="https://shrimple.dev/">shrimple.dev</a> (including the browser version at <a href="app.html">shrimple.dev/app.html</a>) and the Shrimple Windows app (<code>shrimple.exe</code>). "We" means the maintainer of the open-source <a href="https://github.com/miles-howell/shrimple">Shrimple project</a>.</p>
+
+    <h2>The Windows app</h2>
+    <p>The app works entirely offline. It contains no networking code, never contacts the internet, and has no telemetry, crash reporting or update checks.</p>
+    <p>To do its job it uses a few pieces of information from Windows, all on your PC and none of it stored or sent anywhere:</p>
+    <ul>
+      <li><strong>How long since your last keyboard or mouse input.</strong> Shrimple only reads the time of the last input (via Windows' <code>GetLastInputInfo</code>), so it can restart the countdown after 5 minutes away. It never sees which keys you press, what you type, or where your mouse is.</li>
+      <li><strong>Lock, unlock and sleep events,</strong> so it can restart the countdown when you come back.</li>
+      <li><strong>Whether a full-screen app, game or presentation is running,</strong> so the big shrimp stays in the tray instead of popping up over it. It doesn't look at which app it is.</li>
+    </ul>
+    <p>Your settings (reminder interval, pop-out and always-on-screen preferences) are saved in your Windows registry under <code>HKCU\Software\Shrimple</code>. If you turn on "Start with Windows", Shrimple adds a <code>Shrimple</code> entry under <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code>; turning it off removes it. To remove everything, quit Shrimple, turn off "Start with Windows" first (or delete that entry), delete the <code>HKCU\Software\Shrimple</code> key, and delete <code>shrimple.exe</code>.</p>
+
+    <h2>The website and browser version</h2>
+    <p>The pages are static files. There's no server-side code, no sign-in, no forms, and no analytics or advertising scripts.</p>
+    <p><strong>Stored in your browser.</strong> Shrimple uses your browser's local storage, which stays on your device and is never sent to us:</p>
+    <ul>
+      <li><code>shrimple-fixed</code> on the home page: the "spines fixed" count from clicking the demo shrimp.</li>
+      <li><code>shrimple-app</code> on the browser version: your reminder interval, whether reminders are paused, and whether you turned on notifications.</li>
+    </ul>
+    <p>You can delete these at any time by clearing site data for shrimple.dev in your browser's settings. Shrimple doesn't set any cookies.</p>
+    <p><strong>Notifications.</strong> If you click "Enable" on the browser version, your browser asks whether shrimple.dev may show notifications. Shrimple never asks on page load. Notifications are created by the page inside your browser while the tab is open; there's no push service, and nothing is sent to us or anyone else. You can turn them off with the button or in your browser's site settings.</p>
+    <p><strong>Floating window.</strong> "Pin the shrimp" opens a picture-in-picture window using your browser's built-in feature. It only shows the shrimp, and nothing about it leaves your device.</p>
+    <p><strong>The page watches the mouse, a little.</strong> On the home page the shrimp turns to face your pointer and follows you as you scroll. This happens in the page itself and isn't recorded or sent anywhere.</p>
+
+    <h2>Third parties</h2>
+    <p>Visiting the site does involve a couple of services that we don't control, which may receive your IP address and normal browser information (such as user agent and the page requested) when your browser loads files from them:</p>
+    <ul>
+      <li><strong>GitHub Pages</strong> hosts the website, and <strong>GitHub</strong> hosts the source code and the <code>shrimple.exe</code> downloads. GitHub may log visits for security and operations. See the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a>.</li>
+      <li><strong>Google Fonts</strong> serves the pixel font used on these pages. See the <a href="https://developers.google.com/fonts/faq/privacy">Google Fonts privacy FAQ</a> and <a href="https://policies.google.com/privacy">Google's Privacy Policy</a>.</li>
+    </ul>
+    <p>If you choose to sponsor the project, open an issue, or otherwise interact on GitHub, that happens on GitHub under GitHub's terms and privacy statement.</p>
+
+    <h2>Children</h2>
+    <p>Shrimple collects no personal information from anyone, including children.</p>
+
+    <h2>Your rights</h2>
+    <p>Because we don't collect or hold personal data about you, there's nothing for us to access, correct, export or delete. All Shrimple data lives on your own device and you can remove it as described above. For data held by GitHub or Google, contact them directly.</p>
+
+    <h2>Changes</h2>
+    <p>If Shrimple's behavior changes in a way that affects your privacy, we'll update this page and the date at the top. The full history of this page is public in the <a href="https://github.com/miles-howell/shrimple/commits/main/docs/privacy.html">project repository</a>.</p>
+
+    <h2>Contact</h2>
+    <p>Questions? <a href="https://github.com/miles-howell/shrimple/issues">Open an issue on GitHub</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <a href="./">Home</a> · <a href="terms.html">Terms of use</a> · <a href="https://github.com/miles-howell/shrimple">GitHub</a>
+</footer>
+</body>
+</html>
