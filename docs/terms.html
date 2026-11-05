@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shrimple terms of use</title>
+<meta name="description" content="The terms for using the Shrimple website, browser version and Windows app.">
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #3A1716;
+    --ink-soft: #7A5A55;
+    --outline: #5C201E;
+    --sea-top: #E9F6FC;
+    --sea-bottom: #B9E0F5;
+    --card: rgba(255, 255, 255, 0.6);
+    --card-line: rgba(92, 32, 30, 0.12);
+    --pixel: "Silkscreen", ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #FBE9E4;
+      --ink-soft: #C7A9A2;
+      --outline: #FFB49C;
+      --sea-top: #0B2233;
+      --sea-bottom: #12405C;
+      --card: rgba(8, 24, 36, 0.55);
+      --card-line: rgba(255, 180, 156, 0.16);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--sea-bottom); }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font: 17px/1.6 var(--body);
+    background: linear-gradient(var(--sea-top), var(--sea-bottom)) fixed;
+    min-height: 100vh;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+  a { color: inherit; }
+  .back { font: 400 14px var(--pixel); text-decoration: none; }
+  h1 { font: 700 28px/1.2 var(--pixel); margin: 12px 0 4px; }
+  .updated { color: var(--ink-soft); margin: 0 0 24px; font-size: 15px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 12px;
+    padding: 4px 24px 12px;
+  }
+  h2 { font: 700 18px/1.3 var(--pixel); color: var(--outline); margin: 24px 0 8px; }
+  p, ul { margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  code { font-family: var(--mono); font-size: 0.9em; overflow-wrap: anywhere; }
+  .tldr { font-weight: 600; }
+  footer { text-align: center; padding: 8px 16px 40px; font: 400 13px/1.6 var(--pixel); color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="./">&larr; shrimple</a>
+  <h1>Terms of use</h1>
+  <p class="updated">Last updated: November 5, 2026</p>
+
+  <div class="card">
+    <p class="tldr" style="margin-top:20px">Short version: Shrimple is a free, open-source posture shrimp. Use it however you like, at your own risk. It's a friendly nudge, not medical advice.</p>
+
+    <p>These terms cover the Shrimple website at <a href="https://shrimple.dev/">shrimple.dev</a> (including the browser version at <a href="app.html">shrimple.dev/app.html</a>) and the Shrimple Windows app (<code>shrimple.exe</code>). By using either, you agree to these terms. "We" means the maintainer of the open-source <a href="https://github.com/miles-howell/shrimple">Shrimple project</a>.</p>
+
+    <h2>Free and open source</h2>
+    <p>Shrimple is free. There's no account, subscription or payment. The source code is released under the <a href="https://opensource.org/license/mit">MIT License</a>, which governs how you may use, copy, modify and distribute the code. If anything here conflicts with that license for the software itself, the license wins.</p>
+    <p>Sponsoring the project through GitHub Sponsors is entirely optional, doesn't buy any extra features or support, and is handled by GitHub under its own terms.</p>
+
+    <h2>Not medical advice</h2>
+    <p>Shrimple is a reminder, not a health product. It doesn't measure, detect or assess your posture: it just runs a timer, and the shrimp's slouching and anger are animations, not a reading of you. It isn't a substitute for advice from a doctor, physiotherapist or other qualified professional. If you have pain or a medical condition, please talk to one.</p>
+
+    <h2>What to expect</h2>
+    <ul>
+      <li><strong>The Windows app</strong> lives in your system tray. Depending on your settings, it can show a larger shrimp in the corner of your screen, launch when you sign in to Windows, and restart its countdown when you're idle, unlock your PC or wake it from sleep. You can change these from its menu and quit it at any time.</li>
+      <li><strong>The browser version</strong> only works while its tab is open. It can show notifications and an always-on-top floating window if you turn them on and your browser supports them. Browsers may delay timers or notifications in background tabs, so reminders may not always arrive on time.</li>
+      <li><strong>The home page shrimp</strong> is a sped-up demo, not a real reminder.</li>
+    </ul>
+    <p>How Shrimple handles your information is described in the <a href="privacy.html">privacy policy</a>.</p>
+
+    <h2>Downloads</h2>
+    <p>Only download <code>shrimple.exe</code> from the project's <a href="https://github.com/miles-howell/shrimple/releases">GitHub releases</a>, or build it yourself from the source. We aren't responsible for copies obtained elsewhere. Windows may warn you about running an unsigned app; that decision is yours.</p>
+
+    <h2>Acceptable use</h2>
+    <p>Please don't use the website to attempt to disrupt it or the services that host it, or to distribute modified copies of Shrimple in a way that misleads people about where they came from. Everything else the MIT License allows is fine.</p>
+
+    <h2>No warranty</h2>
+    <p>Shrimple is provided "as is", without warranty of any kind, express or implied, including warranties of merchantability, fitness for a particular purpose and non-infringement. We don't promise that it will be available, accurate, uninterrupted or free of bugs, or that any reminder will be shown.</p>
+
+    <h2>Limitation of liability</h2>
+    <p>To the fullest extent permitted by law, the maintainers and contributors of Shrimple aren't liable for any claim, damages or other liability arising from or in connection with the website, the app, or their use, including any injury, discomfort, lost work or data, or interruptions caused by reminders, notifications or the on-screen shrimp. Some places don't allow certain limits on liability, so parts of this section may not apply to you.</p>
+
+    <h2>Other services</h2>
+    <p>The site is hosted on GitHub Pages and loads a font from Google Fonts, and the downloads and source live on GitHub. Your use of those services is subject to their own terms.</p>
+
+    <h2>Name and artwork</h2>
+    <p>The shrimp's pixel art is part of the project and covered by the same MIT License as the code. Please don't present a modified version as the official Shrimple.</p>
+
+    <h2>Changes</h2>
+    <p>We may update these terms from time to time. Changes take effect when posted here, and the date at the top will change. The full history is public in the <a href="https://github.com/miles-howell/shrimple/commits/main/docs/terms.html">project repository</a>. If you don't agree with an update, stop using Shrimple.</p>
+
+    <h2>Contact</h2>
+    <p>Questions? <a href="https://github.com/miles-howell/shrimple/issues">Open an issue on GitHub</a>.</p>
+  </div>
+</main>
+
+<footer>
+  <a href="./">Home</a> · <a href="privacy.html">Privacy policy</a> · <a href="https://github.com/miles-howell/shrimple">GitHub</a>
+</footer>
+</body>
+</html>

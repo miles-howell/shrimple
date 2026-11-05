@@ -83,6 +83,10 @@ cargo build --release --target x86_64-pc-windows-gnu
 Settings live in the registry under `HKCU\Software\Shrimple`. "Start with
 Windows" uses the standard `HKCU\...\CurrentVersion\Run` entry.
 
+Shrimple collects nothing: the app never goes online, and the website has no
+analytics or cookies. See the [privacy policy](https://shrimple.dev/privacy.html)
+and [terms of use](https://shrimple.dev/terms.html).
+
 ## Hacking on the shrimp
 
 | File | What's in it |
