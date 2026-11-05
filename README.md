@@ -113,3 +113,7 @@ auto-generated notes. A tag only publishes a release if the workflow file at
 that tagged commit already has the release job, so tag after merging it. Builds
 from ordinary pushes are still available as the `shrimple` artifact on the
 [Actions page](https://github.com/miles-howell/shrimple/actions/workflows/build.yml).
+
+## License
+
+[MIT](LICENSE)
