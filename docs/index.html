@@ -74,6 +74,29 @@
   a { color: inherit; }
   main { max-width: 880px; margin: 0 auto; padding: 0 16px; }
 
+  /* ---------- Back to Planned Pixel ---------- */
+  .pp-back {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font: 400 13px/1 var(--pixel);
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .pp-back:hover, .pp-back:focus-visible { border-color: var(--outline); transform: translateX(-2px); }
+  .pp-back:focus-visible { outline: 2px solid var(--outline); outline-offset: 2px; }
+  @media (max-width: 720px) { .pp-back { top: 10px; left: 10px; font-size: 12px; padding: 7px 12px; } }
+
   /* ---------- Hero ---------- */
   .hero {
     display: grid;
@@ -304,6 +327,7 @@
 </style>
 </head>
 <body>
+<a class="pp-back" href="https://plannedpixel.com"><span aria-hidden="true">&larr;</span> Back to Planned Pixel</a>
 <main>
   <header class="hero">
     <div>
