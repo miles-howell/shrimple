@@ -2,14 +2,19 @@
 //! climbs out of the tray and sits in the corner of the screen, growing as it
 //! gets angrier, until you sit up straight (or it stays there all the time, if
 //! you ask it to). It never takes focus or shows up in Alt-Tab.
+//!
+//! In berserk mode it doesn't sit still: it bounces around the screen, faster
+//! the angrier it gets, and freezes while the mouse is over it so you can click it.
 
 use std::ptr::{null, null_mut};
+use std::time::{Duration, Instant};
 
 use windows_sys::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, POINT, RECT, SIZE, WPARAM};
 use windows_sys::Win32::Graphics::Gdi::{
     CreateCompatibleDC, CreateDIBSection, DeleteDC, DeleteObject, SelectObject, AC_SRC_ALPHA,
     AC_SRC_OVER, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, BLENDFUNCTION, DIB_RGB_COLORS,
 };
+use windows_sys::Win32::System::SystemInformation::GetTickCount;
 use windows_sys::Win32::UI::HiDpi::GetDpiForWindow;
 use windows_sys::Win32::UI::Shell::{
     SHQueryUserNotificationState, QUERY_USER_NOTIFICATION_STATE, QUNS_ACCEPTS_NOTIFICATIONS,
@@ -17,6 +22,7 @@ use windows_sys::Win32::UI::Shell::{
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::*;
 
+use crate::roam::{self, Area, Roam};
 use crate::settings::wide;
 use crate::shrimp::Look;
 use crate::sprite::{self, ART_SIZE};
@@ -29,6 +35,11 @@ pub struct Popout {
     hwnd: HWND,
     /// What's on screen right now: the look and its size in real pixels.
     shown: Option<(Look, i32)>,
+    /// Berserk mode is on and the shrimp is angry enough to wander.
+    roaming: bool,
+    /// Where it has wandered to, once it has started.
+    roam: Option<Roam>,
+    last_step: Option<Instant>,
 }
 
 impl Popout {
@@ -48,7 +59,8 @@ impl Popout {
 
             // Owned by the hidden tray window, which keeps it off the taskbar.
             let title = wide("Shrimple");
-            let (x, y) = corner(0);
+            let area = work_area();
+            let (x, y) = (area.right, area.bottom);
             let hwnd = CreateWindowExW(
                 WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
                 class_name.as_ptr(),
@@ -63,7 +75,13 @@ impl Popout {
                 instance,
                 null(),
             );
-            (!hwnd.is_null()).then_some(Popout { hwnd, shown: None })
+            (!hwnd.is_null()).then_some(Popout {
+                hwnd,
+                shown: None,
+                roaming: false,
+                roam: None,
+                last_step: None,
+            })
         }
     }
 
@@ -100,6 +118,61 @@ impl Popout {
         if self.shown.take().is_some() {
             unsafe { ShowWindow(self.hwnd, SW_HIDE) };
         }
+        // Next time it pops out, it starts from the corner again.
+        self.roam = None;
+    }
+
+    /// Whether the shrimp should wander the screen (berserk mode) or sit in the
+    /// corner. When it stops wandering it goes straight back to the corner.
+    pub fn set_roaming(&mut self, roaming: bool) {
+        if self.roaming == roaming {
+            return;
+        }
+        self.roaming = roaming;
+        self.last_step = None;
+        self.roam = None;
+        // Redraw on the next `show`: from the corner, wherever it's headed.
+        self.invalidate();
+    }
+
+    pub fn is_roaming(&self) -> bool {
+        self.roaming && self.shown.is_some()
+    }
+
+    /// Moves a roaming shrimp along by however long it's been since the last
+    /// step. Call this often (every frame) while `is_roaming`.
+    pub fn step(&mut self) {
+        let now = Instant::now();
+        let last = self.last_step.replace(now);
+        let (Some((look, size)), Some(roam)) = (self.shown, self.roam.as_mut()) else {
+            return;
+        };
+        if !self.roaming || size == 0 {
+            return;
+        }
+        // Hold still while the mouse is over it, so you can actually click it.
+        if cursor_over(self.hwnd) {
+            return;
+        }
+        // Cap the time step so a hiccup (or waking from sleep) can't teleport it.
+        let dt = last
+            .map(|t| now.saturating_duration_since(t))
+            .unwrap_or_default()
+            .min(Duration::from_millis(100));
+        let dpi = unsafe { GetDpiForWindow(self.hwnd) }.max(96) as f64;
+        let distance = roam::speed(look.anger) * dpi / 96.0 * dt.as_secs_f64();
+        let (x, y) = roam.step(distance, work_area(), size);
+        unsafe {
+            SetWindowPos(
+                self.hwnd,
+                null_mut(),
+                x,
+                y,
+                0,
+                0,
+                SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE,
+            );
+        }
     }
 
     /// Forget what's on screen so the next `show` redraws and re-places it
@@ -111,15 +184,23 @@ impl Popout {
     }
 
     /// Paints `look` into the layered window at `size`x`size` pixels, tucked
-    /// into the bottom-right corner of the work area, just above the tray.
-    fn draw(&self, look: Look, size: i32, dpi: i32) {
+    /// into the bottom-right corner of the work area, just above the tray, or
+    /// wherever it has roamed to.
+    fn draw(&mut self, look: Look, size: i32, dpi: i32) {
         let pixels = sprite::render(look, size as usize);
+        let area = work_area();
         let margin = MARGIN * dpi / 96;
-        let (right, bottom) = corner(margin);
-        let pos = POINT {
-            x: right - size,
-            y: bottom - size,
+        let corner = (area.right - margin - size, area.bottom - margin - size);
+        let (x, y) = if self.roaming {
+            let roam = self
+                .roam
+                .get_or_insert_with(|| Roam::new(corner.0, corner.1, unsafe { GetTickCount() }));
+            // Growing can push it past an edge; a zero-length step pulls it back in.
+            roam.step(0.0, area, size)
+        } else {
+            corner
         };
+        let pos = POINT { x, y };
         let extent = SIZE { cx: size, cy: size };
         unsafe {
             let mut header: BITMAPINFO = std::mem::zeroed();
@@ -193,9 +274,8 @@ pub fn screen_is_busy() -> bool {
     ok && state != QUNS_ACCEPTS_NOTIFICATIONS && state != QUNS_QUIET_TIME
 }
 
-/// The bottom-right corner of the primary monitor's work area (the screen minus
-/// the taskbar), pulled in by `margin` pixels.
-fn corner(margin: i32) -> (i32, i32) {
+/// The primary monitor's work area: the screen minus the taskbar.
+fn work_area() -> Area {
     let mut area = RECT {
         left: 0,
         top: 0,
@@ -208,7 +288,29 @@ fn corner(margin: i32) -> (i32, i32) {
             area.bottom = GetSystemMetrics(SM_CYSCREEN);
         }
     }
-    (area.right - margin, area.bottom - margin)
+    Area {
+        left: area.left,
+        top: area.top,
+        right: area.right,
+        bottom: area.bottom,
+    }
+}
+
+/// Whether the mouse pointer is over `hwnd`.
+fn cursor_over(hwnd: HWND) -> bool {
+    let mut cursor = POINT { x: 0, y: 0 };
+    let mut rect = RECT {
+        left: 0,
+        top: 0,
+        right: 0,
+        bottom: 0,
+    };
+    unsafe {
+        GetCursorPos(&mut cursor) != 0
+            && GetWindowRect(hwnd, &mut rect) != 0
+            && (rect.left..rect.right).contains(&cursor.x)
+            && (rect.top..rect.bottom).contains(&cursor.y)
+    }
 }
 
 unsafe extern "system" fn popout_proc(

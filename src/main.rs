@@ -6,6 +6,8 @@
 #![cfg_attr(windows, windows_subsystem = "windows")]
 
 #[cfg_attr(not(windows), allow(dead_code))]
+mod roam;
+#[cfg_attr(not(windows), allow(dead_code))]
 mod shrimp;
 #[cfg_attr(not(windows), allow(dead_code))]
 mod sprite;

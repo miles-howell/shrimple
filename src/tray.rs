@@ -36,6 +36,9 @@ use crate::sprite;
 pub const WM_TRAY: u32 = WM_APP + 1;
 const TICK_TIMER: usize = 1;
 const TICK_MS: u32 = 500;
+/// Runs only while a berserk shrimp is roaming, to move it smoothly.
+const ROAM_TIMER: usize = 2;
+const ROAM_MS: u32 = 16;
 const ICON_ID: u32 = 1;
 
 /// No keyboard/mouse input for this long means you've stepped away; the
@@ -50,6 +53,7 @@ const CMD_AUTOSTART: usize = 102;
 const CMD_QUIT: usize = 103;
 const CMD_POP_OUT: usize = 104;
 const CMD_ALWAYS_SHOWN: usize = 105;
+const CMD_BERSERK: usize = 106;
 const CMD_INTERVAL_BASE: usize = 200;
 
 // Session-change codes for WM_WTSSESSION_CHANGE and power events for WM_POWERBROADCAST.
@@ -70,6 +74,9 @@ struct App {
     pops_out: bool,
     /// Keep the big shrimp on screen even while it's calm.
     always_shown: bool,
+    /// Let the popped-out shrimp roam around the screen once it's on fire.
+    berserk: bool,
+    roam_timer_running: bool,
 }
 
 thread_local! {
@@ -140,6 +147,8 @@ pub fn run() {
             popout: Popout::new(hwnd, instance),
             pops_out: settings::pops_out(),
             always_shown: settings::always_shown(),
+            berserk: settings::berserk(),
+            roam_timer_running: false,
         };
         APP.with(|slot| *slot.borrow_mut() = Some(app));
 
@@ -178,6 +187,11 @@ impl App {
     fn handle(&mut self, msg: u32, wparam: WPARAM, lparam: LPARAM) -> Option<LRESULT> {
         match msg {
             WM_TIMER if wparam == TICK_TIMER => self.tick(),
+            WM_TIMER if wparam == ROAM_TIMER => {
+                if let Some(popout) = &mut self.popout {
+                    popout.step();
+                }
+            }
             WM_TRAY if lparam as u32 == WM_LBUTTONUP => {
                 self.shrimp.acknowledge(Instant::now());
                 self.refresh();
@@ -289,9 +303,21 @@ impl App {
         if let Some(popout) = &mut self.popout {
             let wanted = self.always_shown || (self.pops_out && self.shrimp.wants_attention(now));
             if wanted && !popout::screen_is_busy() {
+                popout.set_roaming(self.berserk && self.shrimp.wants_attention(now));
                 popout.show(look);
             } else {
                 popout.hide();
+            }
+            let roaming = popout.is_roaming();
+            if roaming != self.roam_timer_running {
+                self.roam_timer_running = roaming;
+                unsafe {
+                    if roaming {
+                        SetTimer(self.hwnd, ROAM_TIMER, ROAM_MS, None);
+                    } else {
+                        KillTimer(self.hwnd, ROAM_TIMER);
+                    }
+                }
             }
         }
     }
@@ -353,6 +379,13 @@ impl App {
                 CMD_ALWAYS_SHOWN,
                 "Always show on screen",
             );
+            let berserk = if self.berserk { MF_CHECKED } else { 0 };
+            append(
+                menu,
+                MF_STRING | berserk,
+                CMD_BERSERK,
+                "Berserk mode (roams)",
+            );
             let autostart = if settings::starts_with_windows() {
                 MF_CHECKED
             } else {
@@ -382,6 +415,10 @@ impl App {
             CMD_ALWAYS_SHOWN => {
                 self.always_shown = !self.always_shown;
                 settings::set_always_shown(self.always_shown);
+            }
+            CMD_BERSERK => {
+                self.berserk = !self.berserk;
+                settings::set_berserk(self.berserk);
             }
             CMD_AUTOSTART => settings::set_starts_with_windows(!settings::starts_with_windows()),
             CMD_QUIT => unsafe {

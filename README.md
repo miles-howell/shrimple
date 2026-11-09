@@ -45,6 +45,7 @@ shrimp and gets steadily angrier. Sit up, click it, and it calms down.
 | Pause reminders | The shrimp stays calm until you unpause. |
 | Pop out when ignored | Let the shrimp climb out onto your screen once the seaweed catches fire (on by default). Untick it to keep it in the tray. |
 | Always show on screen | Keep the big shrimp in the corner of your screen all the time, calm or not (off by default). |
+| Berserk mode (roams) | Once the popped-out shrimp is on fire, it stops sitting in the corner and bounces around your screen, faster the angrier it gets (off by default). It freezes while your mouse is over it so you can still click it, never steals focus, and still hides during full-screen apps. |
 | Start with Windows | Launch Shrimple when you sign in. |
 | Quit | Bye, shrimp. |
 
@@ -93,6 +94,8 @@ and [terms of use](https://shrimple.dev/terms.html).
 | --- | --- |
 | `src/sprite.rs` | The 16×16 pixel art as ASCII, plus the calm and furious palettes. The water, seabed and flames are drawn behind the shrimp. |
 | `src/shrimp.rs` | Timing for when it slumps and how fast it gets angry (constants at the top). |
+| `src/popout.rs` | The big on-screen shrimp that climbs out of the tray. |
+| `src/roam.rs` | Berserk mode's wandering: how fast it moves and how it bounces off the screen edges. |
 | `src/tray.rs` | The Win32 tray icon, menu and timer. |
 
 `cargo run --example preview` renders every mood, on light and dark taskbars,

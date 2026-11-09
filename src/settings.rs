@@ -10,6 +10,7 @@ const APP_KEY: &str = r"Software\Shrimple";
 const INTERVAL_VALUE: &str = "IntervalMinutes";
 const POP_OUT_VALUE: &str = "PopOut";
 const ALWAYS_SHOWN_VALUE: &str = "PopOutAlways";
+const BERSERK_VALUE: &str = "Berserk";
 const RUN_KEY: &str = r"Software\Microsoft\Windows\CurrentVersion\Run";
 const RUN_VALUE: &str = "Shrimple";
 
@@ -45,6 +46,15 @@ pub fn always_shown() -> bool {
 
 pub fn set_always_shown(enabled: bool) {
     write_dword(ALWAYS_SHOWN_VALUE, enabled as u32);
+}
+
+/// Whether the popped-out shrimp roams around the screen once it's on fire (off by default).
+pub fn berserk() -> bool {
+    read_dword(BERSERK_VALUE).is_some_and(|v| v != 0)
+}
+
+pub fn set_berserk(enabled: bool) {
+    write_dword(BERSERK_VALUE, enabled as u32);
 }
 
 fn read_dword(name: &str) -> Option<u32> {
