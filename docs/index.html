@@ -11,43 +11,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --ink: #3A1716;
-    --ink-soft: #7A5A55;
-    --outline: #5C201E;
+    --ink: #FBE9E4;
+    --ink-soft: #C7A9A2;
+    --outline: #FFB49C;
     --shrimp: #FF8E6C;
-    --sea-top: #E9F6FC;
-    --sea-bottom: #B9E0F5;
+    --sea-top: #0B2233;
+    --sea-bottom: #12405C;
     --sand: #DEB870;
     --pebble: #A88A5C;
-    --tile: #F4FAFD;
-    --card: rgba(255, 255, 255, 0.6);
-    --card-line: rgba(92, 32, 30, 0.12);
+    --tile: #1A3A50;
+    --card: rgba(8, 24, 36, 0.55);
+    --card-line: rgba(255, 180, 156, 0.16);
     --hot: #E4201A;
     --pixel: "Silkscreen", ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
     --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     --mono: ui-monospace, SFMono-Regular, Consolas, Menlo, monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --ink: #FBE9E4;
-      --ink-soft: #C7A9A2;
-      --outline: #FFB49C;
-      --sea-top: #0B2233;
-      --sea-bottom: #12405C;
-      --tile: #1A3A50;
-      --card: rgba(8, 24, 36, 0.55);
-      --card-line: rgba(255, 180, 156, 0.16);
-    }
-  }
-  :root[data-theme="dark"] {
-    --ink: #FBE9E4;
-    --ink-soft: #C7A9A2;
-    --outline: #FFB49C;
-    --sea-top: #0B2233;
-    --sea-bottom: #12405C;
-    --tile: #1A3A50;
-    --card: rgba(8, 24, 36, 0.55);
-    --card-line: rgba(255, 180, 156, 0.16);
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
@@ -96,6 +75,7 @@
   .pp-back:hover, .pp-back:focus-visible { border-color: var(--outline); transform: translateX(-2px); }
   .pp-back:focus-visible { outline: 2px solid var(--outline); outline-offset: 2px; }
   @media (max-width: 720px) { .pp-back { top: 10px; left: 10px; font-size: 12px; padding: 7px 12px; } }
+
 
   /* ---------- Hero ---------- */
   .hero {
@@ -285,10 +265,107 @@
   .moods strong { display: block; font: 700 13px/1.2 var(--pixel); margin-top: 10px; }
   .moods span { display: block; font-size: 13px; color: var(--ink-soft); line-height: 1.35; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--card-line); vertical-align: top; }
-  th { font: 700 12px/1 var(--pixel); color: var(--ink-soft); }
-  td:first-child { font-weight: 600; white-space: nowrap; }
+  /* ---------- Right-click menu explainer ---------- */
+  .menu-demo {
+    --menu-bg: #2C2C2C;
+    --menu-ink: #FFFFFF;
+    --menu-dim: #9A9A9A;
+    --menu-line: rgba(255, 255, 255, 0.09);
+    --menu-hover: rgba(255, 255, 255, 0.08);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 22px 0 6px;
+    min-height: 360px;
+  }
+  .ctx {
+    width: 280px;
+    max-width: 100%;
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    font: 14px/1 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    color: var(--menu-ink);
+    background: var(--menu-bg);
+    border: 1px solid var(--menu-line);
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14), 0 0 2px rgba(0, 0, 0, 0.12);
+  }
+  .ctx hr { border: 0; border-top: 1px solid var(--menu-line); margin: 4px -4px; }
+  .ctx-item {
+    display: grid;
+    grid-template-columns: 28px 1fr 16px;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    padding: 0 8px 0 4px;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    background: none;
+    border: 0;
+    border-radius: 4px;
+    cursor: default;
+  }
+  .ctx-item:hover, .ctx-item:focus-visible, .ctx-item.active { background: var(--menu-hover); outline: none; }
+  .ctx-item:focus-visible { box-shadow: inset 0 0 0 2px var(--menu-ink); }
+  .ctx-item.status { color: var(--menu-dim); }
+  .ctx-item > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ctx-item.default { font-weight: 600; }
+  .ctx-item .check { justify-self: center; visibility: hidden; }
+  .ctx-item[aria-pressed="true"] .check { visibility: visible; }
+  .ctx-item .chev { justify-self: end; }
+  .ctx-item svg { display: block; }
+  .tray {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 10px;
+    padding: 4px 6px;
+    background: var(--menu-bg);
+    border: 1px solid var(--menu-line);
+    border-radius: 8px;
+    font: 12px/1 "Segoe UI", system-ui, sans-serif;
+    color: var(--menu-dim);
+  }
+  .tray span, .tray canvas { padding: 4px 6px; border-radius: 4px; }
+  .tray canvas { width: 32px; height: 32px; padding: 4px; image-rendering: pixelated; background: var(--menu-hover); box-sizing: content-box; }
+  .tip {
+    position: absolute;
+    z-index: 2;
+    width: 280px;
+    max-width: calc(100% - 8px);
+    padding: 12px 14px;
+    font-size: 15px;
+    line-height: 1.45;
+    background: #FFFFFF;
+    color: #3A1716;
+    border: 3px solid var(--outline);
+    box-shadow: 4px 4px 0 var(--outline);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: opacity 0.15s, transform 0.15s;
+    pointer-events: none;
+  }
+  .tip.show { opacity: 1; transform: none; }
+  .tip.below { transform: translateY(-6px); }
+  .tip.below.show { transform: none; }
+  .tip strong { display: block; font: 700 13px/1.2 var(--pixel); margin-bottom: 6px; color: #5C201E; }
+  .tip::before {
+    content: "";
+    position: absolute;
+    top: var(--arrow, 16px);
+    left: -10px;
+    width: 14px;
+    height: 14px;
+    background: #FFFFFF;
+    border-left: 3px solid var(--outline);
+    border-bottom: 3px solid var(--outline);
+    transform: rotate(45deg);
+  }
+  .tip.below::before { top: -10px; left: var(--arrow, 24px); transform: rotate(135deg); }
+  .menu-hint { font-size: 14px; color: var(--ink-soft); margin: 0; }
 
   pre {
     background: #1E1412;
@@ -319,10 +396,10 @@
     .hero { grid-template-columns: 1fr; padding-top: 40px; gap: 32px; }
     .stage { margin: 0 auto; width: min(320px, 100%); order: -1; }
     .tank { width: min(288px, 80vw); height: min(288px, 80vw); }
-    td:first-child { white-space: normal; }
   }
   @media (prefers-reduced-motion: reduce) {
     .tank, .tank.mad, .tank.furious, .tank.boop, .speech.pop { animation: none; }
+    .tip { transition: none; }
   }
 </style>
 </head>
@@ -368,18 +445,33 @@
     <h2>Using it</h2>
     <div class="card">
       <p><strong>Hover</strong> over the shrimp to see how long until the next check. <strong>Left-click</strong> it when you've sat up straight. <strong>Right-click</strong> for the menu:</p>
-      <table>
-        <thead><tr><th>Menu item</th><th>What it does</th></tr></thead>
-        <tbody>
-          <tr><td>I sat up straight</td><td>Same as left-clicking the shrimp.</td></tr>
-          <tr><td>Remind me every</td><td>5, 10, 15, 20, 30 or 45 minutes, or 1 or 1½ hours (default 30 minutes).</td></tr>
-          <tr><td>Pause reminders</td><td>The shrimp stays calm until you unpause.</td></tr>
-          <tr><td>Pop out when ignored</td><td>Once the seaweed catches fire, a bigger shrimp sits in the corner of your screen until you click it. On by default.</td></tr>
-          <tr><td>Always show on screen</td><td>Keep the big shrimp in the corner of your screen all the time, calm or not. Off by default.</td></tr>
-          <tr><td>Start with Windows</td><td>Launch Shrimple when you sign in.</td></tr>
-          <tr><td>Quit</td><td>Bye, shrimp.</td></tr>
-        </tbody>
-      </table>
+      <div class="menu-demo" id="menu-demo">
+        <ul class="ctx" aria-label="Shrimple's right-click menu">
+          <li><button class="ctx-item status" type="button" data-tip="status" aria-describedby="tip-status"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="label">Next posture check in 12 min</span><span></span></button></li>
+          <li><hr></li>
+          <li><button class="ctx-item default" type="button" data-tip="ack" aria-describedby="tip-ack"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>I sat up straight</span><span></span></button></li>
+          <li><button class="ctx-item" type="button" data-tip="interval" aria-describedby="tip-interval"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Remind me every</span><span class="chev" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M4.5 2.5L8 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button></li>
+          <li><button class="ctx-item" type="button" data-tip="pause" aria-describedby="tip-pause" aria-pressed="false"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Pause reminders</span><span></span></button></li>
+          <li><button class="ctx-item" type="button" data-tip="popout" aria-describedby="tip-popout" aria-pressed="true"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Pop out when ignored</span><span></span></button></li>
+          <li><button class="ctx-item" type="button" data-tip="always" aria-describedby="tip-always" aria-pressed="false"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Always show on screen</span><span></span></button></li>
+          <li><button class="ctx-item" type="button" data-tip="autostart" aria-describedby="tip-autostart" aria-pressed="true"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Start with Windows</span><span></span></button></li>
+          <li><hr></li>
+          <li><button class="ctx-item" type="button" data-tip="quit" aria-describedby="tip-quit"><span class="check" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M1.5 6.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Quit</span><span></span></button></li>
+        </ul>
+        <div class="tray" aria-hidden="true"><span>^</span><canvas id="tray-shrimp" width="16" height="16"></canvas><span>ENG</span><span>10:42 AM</span></div>
+        <div class="tip" id="tip" aria-hidden="true"><strong id="tip-title"></strong><span id="tip-body"></span></div>
+        <div hidden>
+          <p id="tip-status">How long until the shrimp checks on you. It says "Paused" while reminders are off, and "Posture check time!" once a check is due. It's just a label, so you can't click it.</p>
+          <p id="tip-ack">Same as left-clicking the shrimp. Tell it you've sat up straight and the countdown starts over. It's the default item, which is why it's bold.</p>
+          <p id="tip-interval">Opens a list: 5, 10, 15, 20, 30, 45, 60 or 90 minutes between checks. 30 minutes is the default. Picking one restarts the countdown.</p>
+          <p id="tip-pause">The shrimp stays calm until you unpause. Handy for meetings, lunch, or a well-earned slouch.</p>
+          <p id="tip-popout">Once the seaweed catches fire, a bigger shrimp climbs out of the tray and sits in the corner of your screen until you click it. It never steals focus, and it stays put during full-screen apps. On by default.</p>
+          <p id="tip-always">Keeps the big shrimp in the corner of your screen all the time, calm or not. Off by default.</p>
+          <p id="tip-autostart">Launches Shrimple when you sign in to Windows, so the shrimp is always on duty.</p>
+          <p id="tip-quit">Bye, shrimp. Closes Shrimple and takes it out of your tray.</p>
+        </div>
+      </div>
+      <p class="menu-hint" id="menu-hint">Hover over a menu item to see what it does.</p>
       <p style="margin-top:18px"><strong>It won't nag an empty chair.</strong> The countdown restarts on its own after 5 minutes with no keyboard or mouse input, when you unlock your PC, and when it wakes from sleep.</p>
     </div>
   </section>
@@ -667,6 +759,81 @@ function tick() {
 // where animation frames stop.
 setInterval(() => { if (document.hidden) render(); }, 1000);
 requestAnimationFrame(tick);
+
+// ---------- Right-click menu explainer ----------
+
+const menuDemo = document.getElementById("menu-demo");
+const tip = document.getElementById("tip");
+const tipTitle = document.getElementById("tip-title");
+const tipBody = document.getElementById("tip-body");
+const menuItems = [...menuDemo.querySelectorAll(".ctx-item")];
+const statusLabel = menuDemo.querySelector(".ctx-item.status .label");
+const trayCanvas = document.getElementById("tray-shrimp");
+let activeItem = null;
+
+if (matchMedia("(hover: none)").matches) {
+  document.getElementById("menu-hint").textContent = "Tap a menu item to see what it does.";
+}
+
+function showTip(item) {
+  if (activeItem) activeItem.classList.remove("active");
+  activeItem = item;
+  item.classList.add("active");
+  tipTitle.textContent = item.querySelector("span:not(.check)").textContent;
+  tipBody.textContent = document.getElementById(item.getAttribute("aria-describedby")).textContent;
+
+  // Beside the menu when there's room, otherwise just under the item.
+  const box = menuDemo.getBoundingClientRect();
+  const r = item.getBoundingClientRect();
+  const menuRight = item.closest(".ctx").getBoundingClientRect().right - box.left;
+  const beside = box.width - menuRight >= 260;
+  tip.classList.toggle("below", !beside);
+  if (beside) {
+    tip.style.left = `${menuRight + 18}px`;
+    tip.style.top = `${r.top - box.top - 10}px`;
+    tip.style.setProperty("--arrow", "16px");
+  } else {
+    tip.style.left = "4px";
+    tip.style.top = `${r.bottom - box.top + 12}px`;
+    tip.style.setProperty("--arrow", "28px");
+  }
+  tip.classList.add("show");
+}
+
+function hideTip() {
+  if (activeItem) activeItem.classList.remove("active");
+  activeItem = null;
+  tip.classList.remove("show");
+}
+
+let tapReady = null;
+for (const item of menuItems) {
+  item.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") showTip(item); });
+  item.addEventListener("pointerdown", e => { tapReady = e.pointerType === "mouse" || activeItem === item; });
+  item.addEventListener("focus", () => showTip(item));
+  item.addEventListener("click", () => {
+    // Ticking the boxes works, just like the real thing. On touch screens the
+    // first tap only explains the item; tap it again to tick it.
+    const ready = tapReady ?? activeItem === item;
+    tapReady = null;
+    if (item.hasAttribute("aria-pressed") && ready) {
+      const on = item.getAttribute("aria-pressed") !== "true";
+      item.setAttribute("aria-pressed", on);
+      if (item.dataset.tip === "pause") statusLabel.textContent = on ? "Paused" : "Next posture check in 12 min";
+    }
+    showTip(item);
+  });
+}
+menuDemo.querySelector(".ctx").addEventListener("pointerleave", e => {
+  if (e.pointerType === "mouse") hideTip();
+});
+menuDemo.addEventListener("focusout", e => {
+  if (!menuDemo.contains(e.relatedTarget)) hideTip();
+});
+document.addEventListener("pointerdown", e => {
+  if (!menuDemo.contains(e.target)) hideTip();
+});
+paint(trayCanvas, compose({ pose: "upright", anger: 0, shake: 0, sparkle: false, flicker: false }, { bubbles: false }), 0);
 </script>
 </body>
 </html>
