@@ -9,6 +9,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  // Apply a saved light/dark choice before the page paints, so it never flashes.
+  try {
+    const saved = localStorage.getItem("shrimple-theme");
+    if (saved === "light" || saved === "dark") document.documentElement.dataset.theme = saved;
+  } catch (e) {}
+</script>
 <style>
   :root {
     --ink: #3A1716;
@@ -96,6 +103,42 @@
   .pp-back:hover, .pp-back:focus-visible { border-color: var(--outline); transform: translateX(-2px); }
   .pp-back:focus-visible { outline: 2px solid var(--outline); outline-offset: 2px; }
   @media (max-width: 720px) { .pp-back { top: 10px; left: 10px; font-size: 12px; padding: 7px 12px; } }
+
+  /* ---------- Light / dark toggle ---------- */
+  .theme-toggle {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10;
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    background: var(--card);
+    border: 1px solid var(--card-line);
+    border-radius: 999px;
+    backdrop-filter: blur(6px);
+  }
+  .theme-toggle button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font: 400 13px/1 var(--pixel);
+    color: var(--ink-soft);
+    background: none;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .theme-toggle button:hover { color: var(--ink); }
+  .theme-toggle button[aria-pressed="true"] { background: var(--shrimp); color: #3A1716; }
+  .theme-toggle button:focus-visible { outline: 2px solid var(--outline); outline-offset: 2px; }
+  .theme-toggle svg { display: block; }
+  @media (max-width: 720px) {
+    .theme-toggle { top: 10px; right: 10px; }
+    .theme-toggle button { font-size: 12px; padding: 6px 10px; }
+  }
+  @media (max-width: 400px) { .theme-toggle .word { display: none; } }
 
   /* ---------- Hero ---------- */
   .hero {
@@ -441,6 +484,10 @@
 </head>
 <body>
 <a class="pp-back" href="https://plannedpixel.com"><span aria-hidden="true">&larr;</span> Back to Planned Pixel</a>
+<div class="theme-toggle" role="group" aria-label="Color theme">
+  <button type="button" data-theme-choice="light" aria-pressed="false" aria-label="Light theme"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><circle cx="7" cy="7" r="3" fill="currentColor"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 .8v1.4M7 11.8v1.4M.8 7h1.4M11.8 7h1.4M2.6 2.6l1 1M10.4 10.4l1 1M2.6 11.4l1-1M10.4 3.6l1-1"/></g></svg><span class="word">Light</span></button>
+  <button type="button" data-theme-choice="dark" aria-pressed="false" aria-label="Dark theme"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M11.8 9.2A5.5 5.5 0 0 1 4.8 2.2 5.5 5.5 0 1 0 11.8 9.2z" fill="currentColor"/></svg><span class="word">Dark</span></button>
+</div>
 <main>
   <header class="hero">
     <div>
@@ -795,6 +842,25 @@ function tick() {
 // where animation frames stop.
 setInterval(() => { if (document.hidden) render(); }, 1000);
 requestAnimationFrame(tick);
+
+// ---------- Light / dark toggle ----------
+
+// With no saved choice the page follows the system setting; picking one pins it.
+const systemDark = matchMedia("(prefers-color-scheme: dark)");
+const themeButtons = [...document.querySelectorAll("[data-theme-choice]")];
+function showTheme() {
+  const current = document.documentElement.dataset.theme || (systemDark.matches ? "dark" : "light");
+  for (const b of themeButtons) b.setAttribute("aria-pressed", b.dataset.themeChoice === current);
+}
+for (const b of themeButtons) {
+  b.addEventListener("click", () => {
+    document.documentElement.dataset.theme = b.dataset.themeChoice;
+    try { localStorage.setItem("shrimple-theme", b.dataset.themeChoice); } catch (e) {}
+    showTheme();
+  });
+}
+systemDark.addEventListener("change", showTheme);
+showTheme();
 
 // ---------- Right-click menu explainer ----------
 
