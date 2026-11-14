@@ -786,7 +786,9 @@ function showTip(item) {
   const box = menuDemo.getBoundingClientRect();
   const r = item.getBoundingClientRect();
   const menuRight = item.closest(".ctx").getBoundingClientRect().right - box.left;
-  const beside = box.width - menuRight >= 260;
+  const room = box.width - menuRight - 22;
+  const beside = room >= 190;
+  tip.style.width = beside ? `${Math.min(280, room)}px` : "";
   tip.classList.toggle("below", !beside);
   if (beside) {
     tip.style.left = `${menuRight + 18}px`;
