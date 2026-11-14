@@ -275,7 +275,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     margin: 22px 0 6px;
     min-height: 360px;
   }
@@ -365,7 +365,7 @@
     transform: rotate(45deg);
   }
   .tip.below::before { top: -10px; left: var(--arrow, 24px); transform: rotate(135deg); }
-  .menu-hint { font-size: 14px; color: var(--ink-soft); margin: 0; }
+  .menu-hint { font-size: 14px; color: var(--ink-soft); margin: 0; text-align: center; }
 
   pre {
     background: #1E1412;
@@ -786,16 +786,21 @@ function showTip(item) {
   const box = menuDemo.getBoundingClientRect();
   const r = item.getBoundingClientRect();
   const menuRight = item.closest(".ctx").getBoundingClientRect().right - box.left;
-  const beside = box.width - menuRight >= 260;
+  const room = box.width - menuRight - 22;
+  const beside = room >= 190;
+  tip.style.width = beside ? `${Math.min(280, room)}px` : "";
   tip.classList.toggle("below", !beside);
   if (beside) {
     tip.style.left = `${menuRight + 18}px`;
     tip.style.top = `${r.top - box.top - 10}px`;
     tip.style.setProperty("--arrow", "16px");
   } else {
-    tip.style.left = "4px";
+    const tipW = tip.offsetWidth;
+    const left = Math.max(4, (box.width - tipW) / 2);
+    const itemMid = r.left - box.left + 28;
+    tip.style.left = `${left}px`;
     tip.style.top = `${r.bottom - box.top + 12}px`;
-    tip.style.setProperty("--arrow", "28px");
+    tip.style.setProperty("--arrow", `${Math.min(Math.max(itemMid - left, 14), tipW - 30)}px`);
   }
   tip.classList.add("show");
 }
